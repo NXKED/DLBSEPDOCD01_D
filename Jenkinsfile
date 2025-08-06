@@ -12,7 +12,7 @@ pipeline {
     stages {
         stage('Checkout') {
           steps {
-            git 'https://github.com/NXKED/DLBSEPDOCD01_D.git'
+            git branch: 'main', url: 'https://github.com/NXKED/DLBSEPDOCD01_D.git'
           }
         }
 
