@@ -24,11 +24,11 @@ pipeline {
 
         stage('Lint') {
           steps {
+            catchError(buildResult: 'UNSTABLE', stageResult: 'UNSTABLE') {
+              sh 'npx eslint . --fix'
+            }
             script {
-              def eslintStatus = sh(script: 'npx eslint . --fix', returnStatus: true)
-              if (eslintStatus != 0) {
-                echo "ESLint hat Fehler gefunden."
-              }
+              echo "Lint fertig."
             }
           }
         }
