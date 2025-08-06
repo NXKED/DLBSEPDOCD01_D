@@ -1,0 +1,14 @@
+# Node.js
+node_modules/
+npm-debug.log
+yarn.lock
+package-lock.json
+
+
+# Env config 
+.env 
+.env.local
+
+# VS Code Workspace
+.vscode/
+*.code-workspace 
