@@ -24,7 +24,7 @@ pipeline {
 
         stage('Lint') {
           steps {
-            sh 'npx eslint .'
+            sh 'npx eslint . --fix' // --fix Code direkt aendern 
           }
         }
 
