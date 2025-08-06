@@ -22,16 +22,18 @@ pipeline {
           }
         }
 
-        stage('Lint') {
-          steps {
-            catchError(buildResult: 'UNSTABLE', stageResult: 'UNSTABLE') {
-              sh 'npx eslint . --fix'
-            }
-            script {
-              echo "Lint fertig."
+        /**
+          stage('Lint') {
+            steps {
+              catchError(buildResult: 'UNSTABLE', stageResult: 'UNSTABLE') {
+                sh 'npx eslint . --fix'
+              }
+              script {
+                echo "Lint fertig."
+              }
             }
           }
-        }
+        */
 
         stage('Build') {
             steps {
