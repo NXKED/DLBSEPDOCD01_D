@@ -53,14 +53,16 @@ pipeline {
         }
     }
 
-    post {
-      always {
-        mail(
-          to: 'nik.breiter@iu-study.org', // Nachricht always an Email ueber Status des Builds. Alternativ mit 'failure'. Wechsel zu Slack tbd.
-          subject: "Build ${currentBuild.fullDisplayName}",
-          body: "Status: ${currentBuild.currentResult}"
-        )
-        junit 'test-results.xml'
+    /**
+      post {
+        always {
+          mail(
+            to: 'nik.breiter@iu-study.org', // Nachricht always an Email ueber Status des Builds. Alternativ mit 'failure'. Wechsel zu Slack tbd.
+            subject: "Build ${currentBuild.fullDisplayName}",
+            body: "Status: ${currentBuild.currentResult}"
+          )
+          junit 'test-results.xml'
+        }
       }
-    }
+    */
 }
