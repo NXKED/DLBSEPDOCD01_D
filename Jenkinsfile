@@ -24,7 +24,12 @@ pipeline {
 
         stage('Lint') {
           steps {
-            sh 'npx eslint . --fix' || true // --fix Code direkt aendern rm true 
+            script {
+              def eslintStatus = sh(script: 'npx eslint . --fix', returnStatus: true)
+              if (eslintStatus != 0) {
+                echo "ESLint hat Fehler gefunden."
+              }
+            }
           }
         }
 
