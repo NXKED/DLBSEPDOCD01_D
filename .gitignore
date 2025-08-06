@@ -12,3 +12,6 @@ package-lock.json
 # VS Code Workspace
 .vscode/
 *.code-workspace 
+
+# Jenkins
+Jenkinsfile
