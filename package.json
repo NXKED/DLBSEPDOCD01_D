@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "type": "module",
   "description": "",
-  "main": "src/main.js",
+  "main": "src/main.jsx",
   "scripts": {
     "build": "vite build",
     "test": "vitest run",
