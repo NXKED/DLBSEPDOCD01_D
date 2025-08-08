@@ -6,5 +6,11 @@ export async function fetchNews() {
     throw new Error('Failed to fetch News')
   }
   const data = await response.json()
-  return data.map(({ title, url }) => ({ title, url }))
+  return data.results.map(({ title, url, summary, published_at, id }) => ({
+    id,
+    title,
+    url,
+    summary,
+    published_at,
+  }))
 }
