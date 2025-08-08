@@ -1,2 +1,2 @@
 const app = document.getElementById("app");
-app.innerHTML = "<h1>Hey User</h1>";
+app.innerHTML = "<h1>Hello User</h1>";
