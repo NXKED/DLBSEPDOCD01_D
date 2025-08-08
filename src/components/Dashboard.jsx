@@ -10,7 +10,8 @@ export default function Dashboard() {
     setLoading(true)
     try {
       const data = await fetchNews()
-      setNews(data.results)
+      console.log('fetched data:', data)
+      setNews(data)
     } catch (error) {
       setError('Fehler beim Laden der News')
     }
@@ -27,6 +28,7 @@ export default function Dashboard() {
       <button onClick={loadNews} disabled={loading}>
         {loading ? 'Loading...' : 'Refresh'}
       </button>
+      {error && <p style={{ color: 'red' }}>{error}</p>}
       <ul>
         {news.map((item) => (
           <li key={item.id} style={{ marginBottom: '20px' }}>
