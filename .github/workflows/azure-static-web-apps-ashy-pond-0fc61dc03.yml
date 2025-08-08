@@ -30,6 +30,16 @@ jobs:
 
       - name: Run ESLint
         run: npx eslint . --max-warnings=0
+        continue-on-error: true
+
+      - name: Approval for ESLint errors
+        uses: trstringer/manual-approval@v1
+        with:
+          secret: ${{ secrets.GITHUB_TOKEN }}
+          approvers: NXKED
+          issue-title: "ESLint Errors found"
+          issue-body: "Approve or deny"
+          fail-on-denial: true
 
       - name: Run Vitest
         run: npx vitest run --reporter=junit --outputFile=test-results.xml
