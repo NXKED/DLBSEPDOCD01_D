@@ -4,11 +4,16 @@ import { fetchNews } from '../api/newsApi'
 export default function Dashboard() {
   const [news, setNews] = useState([])
   const [loading, setLoading] = useState(false)
+  const [error, setError] = useState(null)
 
   async function loadNews() {
     setLoading(true)
-    const data = await fetchNews()
-    setNews(data)
+    try {
+      const data = await fetchNews()
+      setNews(data.results)
+    } catch (error) {
+      setError('Fehler beim Laden der News')
+    }
     setLoading(false)
   }
 
@@ -23,11 +28,15 @@ export default function Dashboard() {
         {loading ? 'Loading...' : 'Refresh'}
       </button>
       <ul>
-        {news.map(({ title, url }, i) => (
-          <li key={i}>
-            <a href={url} target="_blank">
-              {title}
+        {news.map((item) => (
+          <li key={item.id} style={{ marginBottom: '20px' }}>
+            <a href={item.url} style={{ fontWeight: 'bold', fontSize: '18px' }}>
+              {item.title}
             </a>
+            <p>{item.summary}</p>
+            <p>
+              Published at: {new Date(item.published_at).toLocaleDateString()}
+            </p>
           </li>
         ))}
       </ul>
