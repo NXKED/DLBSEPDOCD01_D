@@ -1,12 +1,12 @@
-import { defineConfig } from "eslint/config";
+import { defineConfig } from 'eslint/config'
 
 export default defineConfig([
   {
-    files: ["**/*.js"],
+    files: ['**/*.js'],
     rules: {
-      semi: ["error", "never"],
-      quotes: ["error", "single"],
-      "prefer-const": "error",
+      semi: ['error', 'never'],
+      quotes: ['error', 'single'],
+      'prefer-const': 'error',
     },
   },
-]);
+])
