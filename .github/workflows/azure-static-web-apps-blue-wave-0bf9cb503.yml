@@ -1,4 +1,4 @@
-name: Azure Static Web Apps CI/CD
+name: Azure Static Web Apps CI/CD - Develop
 
 on:
   push:
@@ -10,8 +10,7 @@ on:
       - develop
 
 jobs:
-  build_and_deploy_job:
-    if: github.event_name == 'push' || (github.event_name == 'pull_request' && github.event.action != 'closed')
+  build_and_test:
     runs-on: ubuntu-latest
     name: Build and Deploy Job
     steps:
@@ -19,18 +18,79 @@ jobs:
         with:
           submodules: true
           lfs: false
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: 18
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Run ESLint
+        run: npx eslint . --max-warnings=0
+        continue-on-error: true
+
+      - name: Approval for ESLint errors
+        uses: trstringer/manual-approval@v1
+        with:
+          secret: ${{ secrets.GITHUB_TOKEN }}
+          approvers: NXKED
+          issue-title: 'ESLint Errors found'
+          issue-body: 'Approve to fix and continue'
+          fail-on-denial: true
+
+      - name: Run Vitest
+        run: npx vitest run --reporter=junit --outputFile=test-results.xml || true
+
+      - name: Check if results are created
+        run: ls -l test-results.xml
+
+      - name: Test Results Upload
+        uses: actions/upload-artifact@v4
+        with:
+          name: vitest-results
+          path: test-results.xml
+
+      - name: Test Results Showcase UI
+        uses: dorny/test-reporter@v2
+        with:
+          name: Vitest Results
+          path: test-results.xml
+          reporter: java-junit
+          fail-on-empty: false
+          use-actions-summary: true
+
+  deploy:
+    if: github.event_name == 'push' && github.ref == 'refs/heads/develop'
+    needs: build_and_test
+    runs-on: ubuntu-latest
+    name: Deploy to Staging
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          submodules: true
+          lfs: false
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: 18
+
+      - name: Install dependencies
+        run: npm install
+
       - name: Build And Deploy
-        id: builddeploy
         uses: Azure/static-web-apps-deploy@v1
         with:
           azure_static_web_apps_api_token: ${{ secrets.AZURE_STATIC_WEB_APPS_API_TOKEN_BLUE_WAVE_0BF9CB503 }}
           repo_token: ${{ secrets.GITHUB_TOKEN }} # Used for Github integrations (i.e. PR comments)
-          action: "upload"
+          action: 'upload'
           ###### Repository/Build Configurations - These values can be configured to match your app requirements. ######
           # For more information regarding Static Web App workflow configurations, please visit: https://aka.ms/swaworkflowconfig
-          app_location: "/" # App source code path
-          api_location: "" # Api source code path - optional
-          output_location: "build" # Built app content directory - optional
+          app_location: '/' # App source code path
+          api_location: '' # Api source code path - optional
+          output_location: 'build' # Built app content directory - optional
           ###### End of Repository/Build Configurations ######
 
   close_pull_request_job:
@@ -43,4 +103,4 @@ jobs:
         uses: Azure/static-web-apps-deploy@v1
         with:
           azure_static_web_apps_api_token: ${{ secrets.AZURE_STATIC_WEB_APPS_API_TOKEN_BLUE_WAVE_0BF9CB503 }}
-          action: "close"
+          action: 'close'

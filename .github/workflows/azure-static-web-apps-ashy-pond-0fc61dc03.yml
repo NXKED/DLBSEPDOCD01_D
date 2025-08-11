@@ -1,4 +1,4 @@
-name: Azure Static Web Apps CI/CD
+name: Azure Static Web Apps CI/CD - Production
 
 on:
   push:
@@ -11,10 +11,18 @@ on:
 
 jobs:
   build_and_deploy_job:
-    if: github.event_name == 'push' || (github.event_name == 'pull_request' && github.event.action != 'closed')
+    if: github.event_name == 'push'
     runs-on: ubuntu-latest
     name: Build and Deploy Job
     steps:
+      - name: Approval for Production
+        uses: trstringer/manual-approval@v1
+        with:
+          secret: ${{ secrets.GITHUB_TOKEN }}
+          approvers: NXKED
+          issue-title: 'Approve production deployment'
+          issue-body: 'Approve to deploy into production'
+          fail-on-denial: true
       - uses: actions/checkout@v3
         with:
           submodules: true
@@ -28,42 +36,7 @@ jobs:
       - name: Install dependencies
         run: npm install
 
-      - name: Run ESLint
-        run: npx eslint . --max-warnings=0
-        continue-on-error: true
-
-      - name: Approval for ESLint errors
-        uses: trstringer/manual-approval@v1
-        with:
-          secret: ${{ secrets.GITHUB_TOKEN }}
-          approvers: NXKED
-          issue-title: 'ESLint Errors found'
-          issue-body: 'Approve to fix and continue'
-          fail-on-denial: true
-
-      - name: Run Vitest
-        run: npx vitest run --reporter=junit --outputFile=test-results.xml || true
-
-      - name: Check if results are created
-        run: ls -l test-results.xml
-
-      - name: Test Results Upload
-        uses: actions/upload-artifact@v4
-        with:
-          name: vitest-results
-          path: test-results.xml
-
-      - name: Test Results Showcase UI
-        uses: dorny/test-reporter@v2
-        with:
-          name: Vitest Results
-          path: test-results.xml
-          reporter: java-junit
-          fail-on-empty: false
-          use-actions-summary: true
-
       - name: Build And Deploy
-        id: builddeploy
         uses: Azure/static-web-apps-deploy@v1
         with:
           azure_static_web_apps_api_token: ${{ secrets.AZURE_STATIC_WEB_APPS_API_TOKEN_ASHY_POND_0FC61DC03 }}
