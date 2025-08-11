@@ -58,7 +58,6 @@ jobs:
         with:
           name: Vitest Results
           path: test-results.xml
-          reporter: junit
 
       - name: Build And Deploy
         id: builddeploy
