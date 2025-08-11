@@ -4,6 +4,7 @@ import Dashboard from '../src/components/Dashboard'
 import { fetchNews } from '../src/api/newsApi'
 import userEvent from '@testing-library/user-event'
 import { beforeEach, vi } from 'vitest'
+import '@testing-library/jest-dom'
 
 // fetchNews test
 vi.mock('../src/api/newsApi', () => ({

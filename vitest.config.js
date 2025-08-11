@@ -3,6 +3,6 @@ import { defineConfig } from 'vitest/config'
 export default defineConfig({
   test: {
     globals: true,
-    environment: 'node', // is default
+    environment: 'jsdom', // node is default, jsdom fuer testing lib react
   },
 })
