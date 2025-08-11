@@ -47,11 +47,18 @@ jobs:
       - name: Check if results are created
         run: ls -l test-results.xml
 
-      - name: Test Results
+      - name: Test Results Upload
         uses: actions/upload-artifact@v4
         with:
           name: vitest-results
           path: test-results.xml
+
+      - name: Test Results in Github UI
+        uses: dorny/test-reporter@v2
+        with:
+          name: Vitest Results
+          path: test-results.xml
+          reporter: junit
 
       - name: Build And Deploy
         id: builddeploy
