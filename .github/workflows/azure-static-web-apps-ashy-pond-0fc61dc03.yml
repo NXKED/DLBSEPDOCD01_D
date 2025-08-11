@@ -9,6 +9,11 @@ on:
     branches:
       - main
 
+permissions:
+  checks: write
+  contents: read
+  actions: read
+
 jobs:
   build_and_deploy_job:
     if: github.event_name == 'push' || (github.event_name == 'pull_request' && github.event.action != 'closed')
@@ -53,12 +58,14 @@ jobs:
           name: vitest-results
           path: test-results.xml
 
-      - name: Test Results in Github UI
+      - name: Test Results Showcase UI
         uses: dorny/test-reporter@v2
         with:
           name: Vitest Results
           path: test-results.xml
           reporter: java-junit
+          fail-on-empty: false
+          use-actions-summary: true
 
       - name: Build And Deploy
         id: builddeploy
