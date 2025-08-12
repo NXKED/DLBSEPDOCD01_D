@@ -23,17 +23,18 @@
   },
   "homepage": "https://github.com/NXKED/DLBSEPDOCD01_D#readme",
   "dependencies": {
-    "eslint": "^9.32.0",
     "react": "^19.1.1",
-    "react-dom": "^19.1.1",
-    "vitest": "^3.2.4"
+    "react-dom": "^19.1.1"
   },
   "devDependencies": {
+    "eslint": "^9.32.0",
     "@testing-library/jest-dom": "^6.6.4",
     "@testing-library/react": "^16.3.0",
     "@testing-library/user-event": "^14.6.1",
     "jsdom": "^26.1.0",
     "snyk": "^1.1298.2",
-    "vite": "^7.1.1"
+    "vite": "^7.1.1",
+    "vitest": "^3.2.4"
+
   }
 }
