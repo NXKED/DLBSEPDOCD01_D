@@ -54,6 +54,19 @@ jobs:
           issue-title: 'Approve production deployment'
           issue-body: 'Approve to deploy into production - Check Snyk Results'
           fail-on-denial: true
+
+      - uses: actions/checkout@v3
+        with:
+          submodules: true
+          lfs: false
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: 18
+
+      - name: Install dependencies
+        run: npm install
       
 
       - name: Deploy
