@@ -46,7 +46,7 @@ jobs:
           webhook-type: webhook-trigger
           payload: |
             {
-              "text": "Repository: ${{ github.repository }}\nBranch: ${{ github.ref_name }}\nESLint status: ${{ steps.eslint_test.outcome }}"
+              "text": "ESLint Summary\nRepository: ${{ github.repository }}-${{ github.ref_name }}\nESLint status: ${{ steps.eslint_test.outcome }}"
             }
 
   test_vitest:
@@ -113,7 +113,7 @@ jobs:
           webhook-type: webhook-trigger
           payload: |
             {
-              "text": "ESLint Fehler in Repository: ${{ github.repository }} Branch: ${{ github.ref_name }} gefunden\n Bestätigung wird benötigt"
+              "text": "ESLint Fehler gefunden in:\nRepository: ${{ github.repository }} \nBranch: ${{ github.ref_name }}\nBestätigung wird benötigt!"
             }
 
       - name: Approval for ESLint errors in Branch develop
@@ -164,7 +164,7 @@ jobs:
           webhook-type: webhook-trigger
           payload: |
             {
-              "text": "Build & Deploy Status: ${{ job.status }}"
+              "text": "Build & Deploy Status: ${{ job.status }}/n----"
             }
 
   close_pull_request_job:
