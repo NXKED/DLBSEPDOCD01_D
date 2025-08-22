@@ -127,7 +127,7 @@ jobs:
 
   deploy:
     if: github.event_name == 'push' && github.ref == 'refs/heads/develop' && (needs.test_eslint.result == 'success' || needs.approval_eslint.result == 'success')
-    needs: [test_eslint, approval_eslint]
+    needs: [test_eslint, approval_eslint,test_vitest]
     runs-on: ubuntu-latest
     name: Deploy to Staging
     steps:
@@ -164,7 +164,7 @@ jobs:
           webhook-type: webhook-trigger
           payload: |
             {
-              "text": "Build & Deploy Status: ${{ job.status }}/n----"
+              "text": "Build & Deploy Status: ${{ job.status }}\n----"
             }
 
   close_pull_request_job:
