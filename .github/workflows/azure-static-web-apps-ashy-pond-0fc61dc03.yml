@@ -29,6 +29,7 @@ jobs:
         run: npm install
 
       - name: Snyk Scan
+        id: snyk_scan
         uses: snyk/actions/node@master
         with:
           args: --severity-threshold=high --sarif-file-output=snyk.sarif
@@ -41,11 +42,32 @@ jobs:
         with:
           sarif_file: snyk.sarif
 
+      - name: Slack Snyk Summary
+        if: always()
+        uses: slackapi/slack-github-action@v2.1.1
+        with:
+          webhook: ${{ secrets.SLACK_WEBHOOK_URL }}
+          webhook-type: webhook-trigger
+          payload: |
+            {
+            "text": "Snyk Scan für ${{ github.repository }}-${{ github.ref_name}} erfolgreich.\nStatus: ${{ steps.snyk_scan.outcome || 'completed' }}"}
+
   build_and_deploy_job:
     if: github.event_name == 'push'
     runs-on: ubuntu-latest
     name: Build Job
     steps:
+
+      - name: Slack Approval Notification
+        if: always()
+        uses: slackapi/slack-github-action@v2.1.1
+        with:
+          webhook: ${{ secrets.SLACK_WEBHOOK_URL }}
+          webhook-type: webhook-trigger
+          payload: |
+            {
+              "text": "Deployment in Produktion!\nRepository: ${{ github.repository }}-${{ github.ref_name }}\nBestätigung wird benötigt!"
+            }
       - name: Approval for Production
         uses: trstringer/manual-approval@v1
         with:
@@ -81,6 +103,17 @@ jobs:
           api_location: '' # Api source code path - optional
           output_location: 'dist' # Built app content directory - optional
           ###### End of Repository/Build Configurations ######
+
+      - name: Slack Build Notification
+        if: always()
+        uses: slackapi/slack-github-action@v2.1.1
+        with:
+          webhook: ${{ secrets.SLACK_WEBHOOK_URL }}
+          webhook-type: webhook-trigger
+          payload: |
+            {
+              "text": "PROD Build & Deploy Status: ${{ job.status }}\n----"
+            }
 
   close_pull_request_job:
     if: github.event_name == 'pull_request' && github.event.action == 'closed'
