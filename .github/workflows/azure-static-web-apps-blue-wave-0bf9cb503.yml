@@ -10,9 +10,11 @@ on:
       - develop
 
 jobs:
-  build_and_test:
+  test_eslint:
     runs-on: ubuntu-latest
-    name: Build and Test
+    name: ESLint-Run
+    outputs:
+      eslint_result: ${{ steps.set_result.outputs.eslint_result }}
     steps:
       - uses: actions/checkout@v3
         with:
@@ -28,9 +30,41 @@ jobs:
         run: npm install
 
       - name: Run ESLint
-        run: npx eslint . --max-warnings=0
+        id: eslint_test
+        run: npx eslint . --max-warnings=0 -f json -o eslint-results.json
         continue-on-error: true
 
+      - name: ESLint Output
+        id: set_result
+        run: echo "eslint_result=${{ steps.eslint_test.outcome }}" >> $GITHUB_OUTPUT
+
+      - name: ESLint Slack Summary
+        if: always()
+        uses: slackapi/slack-github-action@v2.1.1
+        with:
+          webhook: ${{ secrets.SLACK_WEBHOOK_URL }}
+          webhook-type: webhook-trigger
+          payload: |
+            {
+              "text": "ESLint Summary\nRepository: ${{ github.repository }}-${{ github.ref_name }}\nESLint status: ${{ steps.eslint_test.outcome }}"
+            }
+
+  test_vitest:
+    runs-on: ubuntu-latest
+    name: Vitest-Run
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          submodules: true
+          lfs: false
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: 18
+
+      - name: Install dependencies
+        run: npm install
       - name: Run Vitest
         run: npx vitest run --reporter=junit --outputFile=test-results.xml || true
 
@@ -52,9 +86,48 @@ jobs:
           fail-on-empty: false
           use-actions-summary: true
 
+  approval_eslint:
+    runs-on: ubuntu-latest
+    needs: test_eslint
+    if: needs.test_eslint.outputs.eslint_result == 'failure'
+    name: ESLint Approval
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          submodules: true
+          lfs: false
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: 18
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Slack Approval Notification
+        if: always()
+        uses: slackapi/slack-github-action@v2.1.1
+        with:
+          webhook: ${{ secrets.SLACK_WEBHOOK_URL }}
+          webhook-type: webhook-trigger
+          payload: |
+            {
+              "text": "ESLint Fehler gefunden in:\nRepository: ${{ github.repository }} \nBranch: ${{ github.ref_name }}\nBestätigung wird benötigt!"
+            }
+
+      - name: Approval for ESLint errors in Branch develop
+        uses: trstringer/manual-approval@v1
+        with:
+          secret: ${{ secrets.GITHUB_TOKEN }}
+          approvers: NXKED
+          issue-title: 'ESLint Errors found'
+          issue-body: 'Approve to fix and continue'
+          fail-on-denial: true
+
   deploy:
-    if: github.event_name == 'push' && github.ref == 'refs/heads/develop'
-    needs: build_and_test
+    if: github.event_name == 'push' && github.ref == 'refs/heads/develop' && (needs.test_eslint.result == 'success' || needs.approval_eslint.result == 'success')
+    needs: [test_eslint, approval_eslint,test_vitest]
     runs-on: ubuntu-latest
     name: Deploy to Staging
     steps:
@@ -70,16 +143,6 @@ jobs:
 
       - name: Install dependencies
         run: npm install
-
-      - name: Approval for ESLint errors in Branch develop
-        uses: trstringer/manual-approval@v1
-        with:
-          secret: ${{ secrets.GITHUB_TOKEN }}
-          approvers: NXKED
-          issue-title: 'ESLint Errors found'
-          issue-body: 'Approve to fix and continue'
-          fail-on-denial: true
-
       - name: Build And Deploy
         uses: Azure/static-web-apps-deploy@v1
         with:
@@ -92,6 +155,17 @@ jobs:
           api_location: '' # Api source code path - optional
           output_location: 'dist' # Built app content directory - optional
           ###### End of Repository/Build Configurations ######
+
+      - name: Slack Build Notification
+        if: always()
+        uses: slackapi/slack-github-action@v2.1.1
+        with:
+          webhook: ${{ secrets.SLACK_WEBHOOK_URL }}
+          webhook-type: webhook-trigger
+          payload: |
+            {
+              "text": "Build & Deploy Status: ${{ job.status }}\n----"
+            }
 
   close_pull_request_job:
     if: github.event_name == 'pull_request' && github.event.action == 'closed'
