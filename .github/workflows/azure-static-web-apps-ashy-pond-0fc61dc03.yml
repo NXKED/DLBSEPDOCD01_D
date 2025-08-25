@@ -10,6 +10,38 @@ on:
       - main
 
 jobs:
+  build_job:
+    runs-on: ubuntu-latest
+    name: build-Job
+    if: github.event_name == 'push'
+    steps: 
+      - uses: actions/checkout@v3
+        with:
+          submodules: true
+          lfs: false
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: 18
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Build App
+        run: npm run build
+
+      - name: Slack Build Notification
+        if: always()
+        uses: slackapi/slack-github-action@v2.1.1
+        with:
+          webhook: ${{ secrets.SLACK_WEBHOOK_URL }}
+          webhook-type: webhook-trigger
+          payload: |
+            {
+              "text": "Build Successful ${{ github.repository }}-${{ github.ref_name}}"
+            }
+
 
   snyk_testing:
     runs-on: ubuntu-latest
@@ -51,13 +83,13 @@ jobs:
           webhook-type: webhook-trigger
           payload: |
             {
-            "text": "Snyk Scan für ${{ github.repository }}-${{ github.ref_name}} erfolgreich.\nStatus: ${{ steps.snyk_scan.outcome || 'completed' }}"}
+            "text": "Snyk Scan für ${{ github.ref_name}} erfolgreich.\nStatus: ${{ steps.snyk_scan.outcome || 'completed' }}"}
 
-  build_and_deploy_job:
+  deploy_job:
     if: github.event_name == 'push'
-    needs: snyk_testing
+    needs: [snyk_testing, build_job]
     runs-on: ubuntu-latest
-    name: Build Job
+    name: Deploy Job
     steps:
 
       - name: Slack Approval Notification
@@ -114,7 +146,7 @@ jobs:
           webhook-type: webhook-trigger
           payload: |
             {
-              "text": "PROD Build & Deploy Status: ${{ job.status }}\n----"
+              "text": "PROD Deploy Status: ${{ job.status }}\n----"
             }
 
   close_pull_request_job:
