@@ -124,7 +124,7 @@ jobs:
           webhook-type: webhook-trigger
           payload: |
             {
-              "text": "ESLint Fehler gefunden in:\nRepository: ${{ github.repository }} \nBranch: ${{ github.ref_name }}\nBestätigung wird benötigt!"
+              "text": "ESLint Fehler gefunden in:\nRepository: ${{ github.repository }} \nBranch: ${{ github.ref_name }}\nBestätigung wird benötigt! <https://github.com/${{ github.repository }}/issues|Github Issues>"
             }
 
       - name: Approval for ESLint errors in Branch develop
