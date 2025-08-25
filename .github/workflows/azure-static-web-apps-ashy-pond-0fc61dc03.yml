@@ -68,7 +68,7 @@ jobs:
           webhook-type: webhook-trigger
           payload: |
             {
-              "text": "Deployment in Produktion!\nRepository: ${{ github.repository }}-${{ github.ref_name }}\nBestätigung wird benötigt!"
+              "text": "Deployment in Produktion!\nRepository: ${{ github.repository }}-${{ github.ref_name }}\nBestätigung wird benötigt! <https://github.com/${{ github.repository }}/issues|Github Issues>"
             }
       - name: Approval for Production
         uses: trstringer/manual-approval@v1
